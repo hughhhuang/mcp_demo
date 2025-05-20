@@ -34,9 +34,12 @@ User input: "{user_input}"
     res = requests.post(OLLAMA_URL, json=payload)
     res.raise_for_status()
     response_text = res.json()["message"]["content"]
-
+    print("[DEBUG] Raw response from Ollama:")
+    print(response_text)
     try:
-        return eval(response_text)  # Replace with json.loads if Ollama reliably produces valid JSON
+        plan = eval(response_text)  # Replace with json.loads if Ollama reliably produces valid JSON
+        print("[INFO] Parsed plan:", plan)
+        return plan
     except Exception as e:
         print("Failed to parse Ollama response:", response_text)
         return {}
@@ -85,8 +88,9 @@ async def run():
                     print("Sorry, could not determine a valid tool.")
                     continue
 
+                print(f"[INFO] Calling MCP tool: {tool} with args: {args}")
                 result = await session.call_tool(tool, args)
-                print("\nResult:", result.content)
+                print("[RESULT]", result.content)
 
 
 if __name__ == "__main__":
