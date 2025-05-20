@@ -1,8 +1,10 @@
 import httpx
+from dotenv import load_dotenv
+import os
 from mcp.server.fastmcp import FastMCP
-
+load_dotenv()
 mcp = FastMCP("My MCP Server")
-
+weatherapi_key = os.getenv("WEATHERAPI_KEY")
 
 @mcp.tool()
 def calculate_bmi(weight_kg: float, height_m: float) -> float:
@@ -14,7 +16,7 @@ def calculate_bmi(weight_kg: float, height_m: float) -> float:
 async def fetch_weather(city: str) -> str:
     """Fetch current weather for a city"""
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://api.weatherapi.com/v1/current.json?key=4f600d1c9e454d10988235730251905&q={city}")
+        response = await client.get(f"https://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={city}")
         return response.text
 
 if __name__ == "__main__":
