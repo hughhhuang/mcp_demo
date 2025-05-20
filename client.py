@@ -51,25 +51,10 @@ server_params = StdioServerParameters(
     env=None,  # Optional environment variables
 )
 
-# Optional: create a sampling callback
-async def handle_sampling_message(
-    message: types.CreateMessageRequestParams,
-) -> types.CreateMessageResult:
-    return types.CreateMessageResult(
-        role="assistant",
-        content=types.TextContent(
-            type="text",
-            text="Hello, world! from model",
-        ),
-        model="gpt-3.5-turbo",
-        stopReason="endTurn",
-    )
-
-
 async def run():
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(
-            read, write, sampling_callback=handle_sampling_message
+            read, write
         ) as session:
             # Initialize the connection
             await session.initialize()
@@ -84,8 +69,14 @@ async def run():
                 tool = plan.get("tool")
                 args = plan.get("args", {})
 
-                if tool not in ["calculate_bmi", "fetch_weather"]:
-                    print("Sorry, could not determine a valid tool.")
+                # Dynamically fetch available tools from the MCP server
+                tool_result = await session.list_tools()
+                available_tools = tool_result.tools
+                available_tool_names = [t.name for t in available_tools]
+                print(f"[INFO] Available tools from server: {available_tool_names}")
+
+                if tool not in available_tool_names:
+                    print(f"[WARN] Tool '{tool}' not found in server registry.")
                     continue
 
                 print(f"[INFO] Calling MCP tool: {tool} with args: {args}")
