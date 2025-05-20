@@ -3,7 +3,7 @@ from mcp.client.stdio import stdio_client
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = "mistral"
+OLLAMA_MODEL = "gemma:2b"
 
 async def ask_ollama_for_tool_and_args(user_input: str) -> dict:
     prompt = f"""
@@ -12,13 +12,13 @@ You are a function calling router agent. You have access to two tools:
 1. calculate_bmi(weight_kg: float, height_m: float): calculates BMI.
 2. fetch_weather(city: str): fetches the current weather for a city.
 
-Given the user input, decide which tool to call and provide a JSON object like:
+Given the user input, decide which tool to call and return only this format:
 {{
   "tool": "tool_name",
   "args": {{...parameters...}}
 }}
 
-Respond with only a valid JSON object.
+Respond with only a valid JSON object. No explanation. No Python formatting. Only valid JSON, nothing else
 
 User input: "{user_input}"
 """
