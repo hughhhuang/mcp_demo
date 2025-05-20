@@ -71,18 +71,22 @@ async def run():
             # Initialize the connection
             await session.initialize()
 
-            user_input = input("What would you like to do? ")
-            plan = await ask_ollama_for_tool_and_args(user_input)
+            while True:
+                user_input = input("\nWhat would you like to do? (type 'exit' to quit)\n> ")
+                if user_input.lower() in ["exit", "quit"]:
+                    break
 
-            tool = plan.get("tool")
-            args = plan.get("args", {})
+                plan = await ask_ollama_for_tool_and_args(user_input)
 
-            if tool not in ["calculate_bmi", "fetch_weather"]:
-                print("Sorry, could not determine a valid tool.")
-                return
+                tool = plan.get("tool")
+                args = plan.get("args", {})
 
-            result = await session.call_tool(tool, args)
-            print("\nResult:", result.content)
+                if tool not in ["calculate_bmi", "fetch_weather"]:
+                    print("Sorry, could not determine a valid tool.")
+                    continue
+
+                result = await session.call_tool(tool, args)
+                print("\nResult:", result.content)
 
 
 if __name__ == "__main__":
